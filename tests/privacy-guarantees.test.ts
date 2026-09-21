@@ -28,7 +28,9 @@ describe('Privacy Behavior & Minimal Necessary Disclosure (AC-03 & AC-05)', () =
 
     // Retrieve public ledger state
     const publicState = contract.getPublicLedgerState();
-    const serializedState = JSON.stringify(publicState);
+    const serializedState = JSON.stringify(publicState, (_key, value) =>
+      typeof value === 'bigint' ? value.toString() : value
+    );
 
     // Assert that NONE of the sensitive witness values appear anywhere in the serialized public ledger
     expect(serializedState).not.toContain('780'); // credit score

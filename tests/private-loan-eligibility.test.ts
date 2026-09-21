@@ -206,6 +206,8 @@ describe('Private Loan Eligibility (PLE) Smart Contract & Privacy Logic', () => 
     });
 
     it('Scenario 10 — Just 1 dollar over DTI boundary fails (monthlyDebt 4,301n)', () => {
+      contract.registerLoanOffer('loan_high_earner', 600, 100_000n, 43, lenderId);
+
       const overDtiWitness: BorrowerPrivateWitness = {
         creditScore: 650,
         annualIncome: 120_000n,

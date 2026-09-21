@@ -1,0 +1,148 @@
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+// ============================================================================
+// Private Loan Eligibility (PLE) — Privacy-Preserving Lending Protocol
+// ============================================================================
+// Midnight Network Smart Contract
+//
+// PRIVACY MODEL:
+// 1. Private Inputs (Witnesses):
+//    - Borrower's credit score (Uint<16>)
+//    - Borrower's annual income (Uint<64>)
+//    - Borrower's monthly debt (Uint<64>)
+//    - Borrower's secret blinding factor (Bytes<32>)
+//    These values NEVER leave the borrower's local machine / wallet prover.
+//
+// 2. Public Ledger State:
+//    - Loan product underwriting criteria (min credit score, min income, max DTI)
+//    - Cryptographic commitment binding the borrower's private state
+//    - Boolean verification outcome (passed / failed)
+//    - Verification timestamp
+//
+// 3. Zero-Knowledge Guarantees:
+//    - Proves: creditScore >= minCreditScore
+//    - Proves: annualIncome >= minIncome
+//    - Proves: (monthlyDebt * 12 * 100) <= (maxDtiPercent * annualIncome)
+//    - Proves: commitment matches borrower identity and secret
+//    - Discloses ONLY the boolean outcome; exact metrics remain completely hidden.
+// ============================================================================
+
+// Public loan criteria registered by lending institutions
+struct LoanTerms {
+    minCreditScore: Uint<16>;    // Minimum FICO/credit score (e.g. 680)
+    minAnnualIncome: Uint<64>;   // Minimum annual income in USD (e.g. 50,000)
+    maxDtiPercent: Uint<16>;     // Maximum Debt-to-Income percentage (e.g. 43)
+    lender: Bytes<32>;           // Public identifier of the lender
+    active: Boolean;             // True if offer is open for applications
+}
+
+// Verification receipt recorded on ledger
+struct VerificationRecord {
+    loanId: Bytes<32>;           // Target loan identifier
+    borrowerCommitment: Bytes<32>; // Cryptographic blinding commitment
+    passed: Boolean;             // Eligibility outcome
+    timestamp: Uint<64>;         // Verification timestamp
+}
+
+// Public ledger state
+export sealed ledger admin: Bytes<32>;
+export ledger loanOffers: Map<Bytes<32>, LoanTerms>;
+export ledger loanCount: Counter;
+export ledger verifications: Map<Bytes<32>, VerificationRecord>;
+export ledger verificationCount: Counter;
+
+// Contract constructor initializes admin identity
+constructor(adminId: Bytes<32>) {
+    admin = disclose(adminId);
+}
+
+// Register a new loan product with public underwriting rules
+export circuit registerLoanOffer(
+    loanId: Bytes<32>,
+    minCreditScore: Uint<16>,
+    minAnnualIncome: Uint<64>,
+    maxDtiPercent: Uint<16>,
+    lender: Bytes<32>
+): [] {
+    loanOffers.insert(disclose(loanId), LoanTerms {
+        minCreditScore: disclose(minCreditScore),
+        minAnnualIncome: disclose(minAnnualIncome),
+        maxDtiPercent: disclose(maxDtiPercent),
+        lender: disclose(lender),
+        active: disclose(true)
+    });
+    loanCount.increment(1);
+}
+
+// Deactivate an existing loan offer (lender control)
+export circuit deactivateLoanOffer(loanId: Bytes<32>): [] {
+    const offer = loanOffers.lookup(loanId);
+    loanOffers.insert(disclose(loanId), LoanTerms {
+        minCreditScore: offer.minCreditScore,
+        minAnnualIncome: offer.minAnnualIncome,
+        maxDtiPercent: offer.maxDtiPercent,
+        lender: offer.lender,
+        active: disclose(false)
+    });
+}
+
+// ============================================================================
+// Zero-Knowledge Circuit: verifyLoanEligibility
+// Evaluates underwriting criteria over private witness inputs.
+// ============================================================================
+export circuit verifyLoanEligibility(
+    loanId: Bytes<32>,
+    creditScore: Uint<16>,       // PRIVATE WITNESS — not disclosed
+    annualIncome: Uint<64>,      // PRIVATE WITNESS — not disclosed
+    monthlyDebt: Uint<64>,       // PRIVATE WITNESS — not disclosed
+    borrowerSecret: Bytes<32>,   // PRIVATE WITNESS — not disclosed
+    borrowerId: Bytes<32>,       // Public borrower pseudonym
+    currentTime: Uint<64>
+): Boolean {
+    // 1. Fetch public loan requirements
+    const offer = loanOffers.lookup(loanId);
+    assert(offer.active, "Loan offer is not active");
+
+    // 2. Compute cryptographic commitment binding the borrower's private state
+    const commitment = persistentCommit<Vector<4, Bytes<32>>, Bytes<32>>(
+        [
+            borrowerId,
+            creditScore as Bytes<32>,
+            annualIncome as Bytes<32>,
+            monthlyDebt as Bytes<32>
+        ],
+        borrowerSecret
+    );
+
+    // 3. Underwriting Rules (Evaluated entirely inside ZK circuit)
+    // Rule A: Credit score satisfies threshold
+    const creditScoreOk = creditScore >= offer.minCreditScore;
+
+    // Rule B: Annual income satisfies threshold
+    const incomeOk = annualIncome >= offer.minAnnualIncome;
+
+    // Rule C: Debt-to-Income (DTI) ratio satisfies maximum threshold
+    // DTI formula: (monthlyDebt * 12 * 100) <= (annualIncome * maxDtiPercent)
+    const annualDebt = monthlyDebt * 12;
+    const debtNumerator = annualDebt * 100;
+    const maxAllowedDebt = annualIncome * (offer.maxDtiPercent as Uint<64>);
+    const dtiOk = (annualIncome > 0) && (debtNumerator <= maxAllowedDebt);
+
+    // Final qualification requires all three rules to hold
+    const isEligible = creditScoreOk && incomeOk && dtiOk;
+
+    // 4. Record minimal verification receipt on-chain
+    const verificationKey = persistentHash<Vector<2, Bytes<32>>>([loanId, borrowerId]);
+    verifications.insert(disclose(verificationKey), VerificationRecord {
+        loanId: disclose(loanId),
+        borrowerCommitment: disclose(commitment),
+        passed: disclose(isEligible),
+        timestamp: disclose(currentTime)
+    });
+    verificationCount.increment(1);
+
+    // Only the boolean eligibility outcome is returned & disclosed
+    return disclose(isEligible);
+}

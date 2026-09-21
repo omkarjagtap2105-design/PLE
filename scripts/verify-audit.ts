@@ -29,7 +29,7 @@ function scanDirectory(dir: string): { filePath: string; line: number; match: st
   const entries = readdirSync(dir);
 
   for (const entry of entries) {
-    if (IGNORE_FILES.has(entry)) continue;
+    if (IGNORE_FILES.has(entry) || entry === 'verify-audit.ts') continue;
     const fullPath = path.join(dir, entry);
     const stat = statSync(fullPath);
 

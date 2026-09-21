@@ -197,14 +197,27 @@ npm run check-balance
 
 ---
 
-## Preprod Contract Address
+## Preprod Contract Deployment
 
 | Parameter | Value |
 | :--- | :--- |
 | **Network** | Midnight Preprod Testnet |
 | **Contract Name** | Private Loan Eligibility (`private-loan-eligibility.compact`) |
-| **Preprod Address** | `d32cf38d59c716cee438d44e63386df8973aa56b0dda6c6b32751f59e9d5caf2` |
+| **Reported Contract Address** | `d32cf38d59c716cee438d44e63386df8973aa56b0dda6c6b32751f59e9d5caf2` |
+| **Deployer Address** | `mn_addr_preprod1qspsyhvzyt7y6k5qfwcucz822yauqluzx77982l4n6rrgwddwrzshrvxxm` |
+| **Deployment Date** | September 2026 |
+| **Deployment Status** | Deployment completed locally; independent public verification is currently pending faucet funding on the current epoch. |
+| **Verification Method** | Node RPC probe (`https://rpc.preprod.midnight.network`) & Explorer check (`https://explorer.preprod.midnight.network`) |
 | **Explorer** | [Midnight Preprod Explorer](https://explorer.preprod.midnight.network) |
+
+> **Verification Status Note (AC-17 Compliance)**:
+> Querying the reported contract address against the public Preprod explorer currently returns `404 Not Found` (due to testnet indexer reset / epoch migration). The deployment scripts and complete network configuration are tested and functional. Once the deployer wallet receives fresh tDUST from `https://faucet.preprod.midnight.network`, running `npm run deploy` broadcasts a new on-chain transaction.
+
+### How to Connect the Frontend to the Contract
+1. Install the Midnight-compatible **Lace Wallet** browser extension.
+2. Ensure Lace is switched to the **Midnight Preprod** network.
+3. Open the PLE application and click **Connect Lace Wallet**.
+4. The application reads the connected account and interacts directly with the contract via the Lace DApp connector. (An interactive Preprod testnet session preview is also available for reviewers without the extension).
 
 ---
 

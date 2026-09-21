@@ -7,6 +7,9 @@ interface EligibilityCertificateProps {
   onClose: () => void;
 }
 
+const isDemoMode = (result: VerificationResult): boolean =>
+  result.txHash.startsWith('demo-mode');
+
 export const EligibilityCertificate: React.FC<EligibilityCertificateProps> = ({
   result,
   onClose,
@@ -19,6 +22,8 @@ export const EligibilityCertificate: React.FC<EligibilityCertificateProps> = ({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const demo = isDemoMode(result);
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
@@ -30,6 +35,19 @@ export const EligibilityCertificate: React.FC<EligibilityCertificateProps> = ({
           boxShadow: result.isEligible ? 'var(--shadow-emerald)' : 'var(--shadow-rose)',
         }}
       >
+        {demo && (
+          <div style={{
+            padding: '10px 24px',
+            background: 'rgba(234, 179, 8, 0.15)',
+            borderBottom: '1px solid rgba(234, 179, 8, 0.3)',
+            textAlign: 'center',
+            fontSize: '0.8rem',
+            color: '#fbbf24',
+            fontWeight: 600,
+          }}>
+            Demo Mode — Connect Lace Wallet for real on-chain verification
+          </div>
+        )}
         {/* Certificate Banner */}
         <div style={{
           padding: '32px 24px',
@@ -58,8 +76,8 @@ export const EligibilityCertificate: React.FC<EligibilityCertificateProps> = ({
           </div>
 
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-            <span className={result.isEligible ? 'badge badge-success' : 'badge badge-danger'}>
-              {result.isEligible ? 'On-Chain Verified' : 'Requirements Not Met'}
+            <span className={demo ? 'badge badge-warning' : (result.isEligible ? 'badge badge-success' : 'badge badge-danger')} style={demo ? { background: 'rgba(234,179,8,0.2)', color: '#fbbf24', border: '1px solid rgba(234,179,8,0.4)' } : {}}>
+              {demo ? 'Demo Preview' : (result.isEligible ? 'On-Chain Verified' : 'Requirements Not Met')}
             </span>
           </div>
 
@@ -177,12 +195,12 @@ export const EligibilityCertificate: React.FC<EligibilityCertificateProps> = ({
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', paddingTop: '8px', borderTop: '1px solid var(--border-subtle)' }}>
-              <span style={{ color: 'var(--text-muted)' }}>Midnight Preprod Tx:</span>
-              <span className="font-mono" style={{ color: 'var(--text-main)' }}>
-                {result.txHash}
-              </span>
-            </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', paddingTop: '8px', borderTop: '1px solid var(--border-subtle)' }}>
+            <span style={{ color: 'var(--text-muted)' }}>Midnight Preprod Tx:</span>
+            <span className="font-mono" style={{ color: demo ? 'var(--text-dim)' : 'var(--text-main)' }}>
+              {demo ? 'Not deployed (connect Lace wallet)' : result.txHash}
+            </span>
+          </div>
           </div>
 
           <button onClick={onClose} className="btn-primary" style={{ width: '100%', padding: '12px' }}>

@@ -78,7 +78,7 @@ export circuit registerLoanOffer(
 
 // Deactivate an existing loan offer (lender control)
 export circuit deactivateLoanOffer(loanId: Bytes<32>): [] {
-    const offer = loanOffers.lookup(loanId);
+    const offer = loanOffers.lookup(disclose(loanId));
     loanOffers.insert(disclose(loanId), LoanTerms {
         minCreditScore: offer.minCreditScore,
         minAnnualIncome: offer.minAnnualIncome,
@@ -92,6 +92,13 @@ export circuit deactivateLoanOffer(loanId: Bytes<32>): [] {
 // Zero-Knowledge Circuit: verifyLoanEligibility
 // Evaluates underwriting criteria over private witness inputs.
 // ============================================================================
+struct BorrowerPrivateState {
+    borrowerId: Bytes<32>;
+    creditScore: Uint<16>;
+    annualIncome: Uint<64>;
+    monthlyDebt: Uint<64>;
+}
+
 export circuit verifyLoanEligibility(
     loanId: Bytes<32>,
     creditScore: Uint<16>,       // PRIVATE WITNESS — not disclosed
@@ -102,17 +109,17 @@ export circuit verifyLoanEligibility(
     currentTime: Uint<64>
 ): Boolean {
     // 1. Fetch public loan requirements
-    const offer = loanOffers.lookup(loanId);
+    const offer = loanOffers.lookup(disclose(loanId));
     assert(offer.active, "Loan offer is not active");
 
     // 2. Compute cryptographic commitment binding the borrower's private state
-    const commitment = persistentCommit<Vector<4, Bytes<32>>, Bytes<32>>(
-        [
-            borrowerId,
-            creditScore as Bytes<32>,
-            annualIncome as Bytes<32>,
-            monthlyDebt as Bytes<32>
-        ],
+    const commitment = persistentCommit<BorrowerPrivateState>(
+        BorrowerPrivateState {
+            borrowerId: borrowerId,
+            creditScore: creditScore,
+            annualIncome: annualIncome,
+            monthlyDebt: monthlyDebt,
+        },
         borrowerSecret
     );
 

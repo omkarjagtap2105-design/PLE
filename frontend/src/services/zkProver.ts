@@ -63,10 +63,6 @@ export class ZkProverService {
     await new Promise((r) => setTimeout(r, 800));
 
     const verificationKey = await sha256Browser(`MIDNIGHT_PERSISTENT_HASH:${offer.id};${borrowerId}`);
-    const randomTxSuffix = Array.from(crypto.getRandomValues(new Uint8Array(16)))
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('');
-    const txHash = `0x${randomTxSuffix}`;
 
     return {
       loanId: offer.id,
@@ -74,7 +70,7 @@ export class ZkProverService {
       borrowerCommitment: commitment,
       isEligible,
       timestamp: Date.now(),
-      txHash,
+      txHash: 'demo-mode-connect-lace-wallet-for-real-tx',
       verificationKey,
       rulesEvaluated: {
         creditScorePassed,

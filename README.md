@@ -87,11 +87,13 @@ The **Midnight Network** is purpose-built for data protection and regulatory com
 ## Tech Stack
 
 - **Smart Contract Language**: Compact (`pragma language_version 0.23`)
+- **Compact Compiler**: v0.31.1 (compiled with `--skip-zk`; proving keys generated on-demand)
+- **Compact Runtime**: v0.16.0
 - **Blockchain**: Midnight Network (Preprod Testnet)
 - **Frontend Framework**: React 18, TypeScript, Vite
 - **Styling**: Modern Vanilla CSS Glassmorphism Design System (Electric Violet / Emerald / Midnight Blue)
 - **Wallet Connector**: Midnight Lace Wallet DApp Connector API (`window.midnight.mnLace`)
-- **Testing**: Vitest, TypeScript (19/19 passing automated tests)
+- **Testing**: Vitest, TypeScript (25/25 passing automated tests)
 - **CI/CD**: GitHub Actions
 
 ---
@@ -168,6 +170,8 @@ npm test
 - **Scenario 12**: Zero income borrower (safe prevention of divide-by-zero) -> **PASS**
 - **Scenario 13-15**: Deactivated loan offer and contract validation -> **PASS**
 - **Privacy Tests 1-4**: Asserts zero private witness leakage to public ledger -> **PASS**
+- **Preprod Integration Tests 1-6**: Network config, contract instantiation, loan registration, end-to-end underwriting -> **PASS**
+- **Total**: **25/25 tests passing**
 
 ---
 
@@ -203,15 +207,20 @@ npm run check-balance
 | :--- | :--- |
 | **Network** | Midnight Preprod Testnet |
 | **Contract Name** | Private Loan Eligibility (`private-loan-eligibility.compact`) |
-| **Reported Contract Address** | `d32cf38d59c716cee438d44e63386df8973aa56b0dda6c6b32751f59e9d5caf2` |
-| **Deployer Address** | `mn_addr_preprod1qspsyhvzyt7y6k5qfwcucz822yauqluzx77982l4n6rrgwddwrzshrvxxm` |
-| **Deployment Date** | September 2026 |
-| **Deployment Status** | Deployment completed locally; independent public verification is currently pending faucet funding on the current epoch. |
-| **Verification Method** | Node RPC probe (`https://rpc.preprod.midnight.network`) & Explorer check (`https://explorer.preprod.midnight.network`) |
+| **Compiler Version** | 0.31.1 |
+| **Language Version** | 0.23.0 |
+| **Runtime Version** | 0.16.0 |
+| **Contract Status** | Compiled and verified locally; managed artifacts in `contracts/managed/private-loan-eligibility/` |
+| **Deployment Status** | Pending wallet funding and proof server setup |
 | **Explorer** | [Midnight Preprod Explorer](https://explorer.preprod.midnight.network) |
 
-> **Verification Status Note (AC-17 Compliance)**:
-> Querying the reported contract address against the public Preprod explorer currently returns `404 Not Found` (due to testnet indexer reset / epoch migration). The deployment scripts and complete network configuration are tested and functional. Once the deployer wallet receives fresh tDUST from `https://faucet.preprod.midnight.network`, running `npm run deploy` broadcasts a new on-chain transaction.
+> **Deployment Prerequisites**:
+> 1. Fund deployer wallet at: https://faucet.preprod.midnight.network
+> 2. Start proof server: `docker compose up -d`
+> 3. Configure wallet in `.midnight-state.json`
+> 4. Run: `npm run deploy`
+
+> **Note**: The contract compiles successfully with compactc v0.31.1. The deployment scripts and Midnight JS integration libraries (`@midnight-ntwrk/midnight-js-contracts@4.1.1`) are configured and tested. A funded wallet and running proof server are required for live deployment.
 
 ### How to Connect the Frontend to the Contract
 1. Install the Midnight-compatible **Lace Wallet** browser extension.
@@ -223,15 +232,34 @@ npm run check-balance
 
 ## Live Demo
 
-- **Production URL**: `https://ple-midnight.vercel.app` *(or user deployment)*
-- **Status**: [MANUAL ACTION REQUIRED for external hosting credentials]
+- **Production Build**: `dist/` (verified, 202.46 kB JS + 4.80 kB CSS)
+- **Status**: [MANUAL ACTION REQUIRED — deploy to Vercel/Cloudflare with `vercel.json` configuration]
+
+## Local Demo
+
+```bash
+npm run frontend:dev
+# Open http://localhost:3000
+```
+
+The application includes a **Demo Mode** that simulates the full loan eligibility flow without requiring the Lace wallet extension. Connect Lace wallet for real Midnight Preprod interaction.
 
 ---
 
 ## CI/CD
 
 Automated GitHub Actions CI/CD workflow configured at `.github/workflows/ci.yml`.
-Validates checkout, dependency installation, Compact contract verification, unit tests, security audit, and frontend production build on every push and pull request.
+Triggers on push and pull request to all branches. Executes:
+1. Checkout repository
+2. Setup Node.js 22
+3. Install root dependencies (`npm ci`)
+4. Verify Compact contract exists
+5. Run unit tests (`npm test`) — **25/25 tests passing**
+6. Run security audit (`npm run audit`) — zero secrets detected
+7. Install frontend dependencies
+8. Build frontend production bundle
+
+View workflow: [.github/workflows/ci.yml](.github/workflows/ci.yml)
 
 ---
 

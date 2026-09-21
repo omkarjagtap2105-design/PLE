@@ -11,14 +11,26 @@
     "build": "npm run build --prefix frontend",
     "build:check": "tsc --noEmit",
     "audit": "tsx scripts/verify-audit.ts",
+    "compile": "tsx scripts/compile.ts",
     "deploy": "tsx scripts/deploy.ts",
     "check-balance": "tsx scripts/check-balance.ts",
     "frontend:dev": "npm run dev --prefix frontend"
   },
   "dependencies": {
+    "@midnight-ntwrk/compact-runtime": "^0.16.0",
+    "@midnight-ntwrk/midnight-js-contracts": "^4.1.1",
+    "@midnight-ntwrk/midnight-js-http-client-proof-provider": "^4.1.1",
+    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "^4.1.1",
+    "@midnight-ntwrk/midnight-js-level-private-state-provider": "^4.1.1",
+    "@midnight-ntwrk/midnight-js-node-zk-config-provider": "^4.1.1",
+    "@midnight-ntwrk/midnight-js-protocol": "^4.1.1",
+    "@midnight-ntwrk/midnight-js-types": "^4.1.1",
+    "@midnight-ntwrk/midnight-js-utils": "^4.1.1",
+    "@midnight-ntwrk/wallet-sdk": "^1.2.0",
     "@scure/bip39": "^2.2.0"
   },
   "devDependencies": {
+    "@midnight-ntwrk/midnight-js-compact": "^4.1.1",
     "@types/node": "^22.10.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",

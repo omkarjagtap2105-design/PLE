@@ -1,0 +1,40 @@
+{
+  "name": "private-loan-eligibility",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Privacy-Preserving Zero-Knowledge Loan Eligibility Verification on Midnight Network",
+  "author": "Omkar Jagtap",
+  "license": "MIT",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build": "npm run build --prefix frontend",
+    "build:check": "tsc --noEmit",
+    "audit": "tsx scripts/verify-audit.ts",
+    "deploy": "tsx scripts/deploy.ts",
+    "check-balance": "tsx scripts/check-balance.ts",
+    "frontend:dev": "npm run dev --prefix frontend"
+  },
+  "dependencies": {
+    "@scure/bip39": "^2.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "midnight",
+    "blockchain",
+    "zero-knowledge",
+    "privacy",
+    "compact",
+    "zk-proofs",
+    "loan-eligibility",
+    "defi"
+  ]
+}

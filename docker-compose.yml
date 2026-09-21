@@ -1,0 +1,18 @@
+services:
+  proof-server:
+    image: midnightnetwork/proof-server:3.0.4
+    container_name: ple-proof-server
+    ports:
+      - "6300:6300"
+    environment:
+      - RUST_LOG=info
+    restart: unless-stopped
+
+  indexer:
+    image: midnightnetwork/indexer-standalone:3.0.4
+    container_name: ple-indexer
+    ports:
+      - "8088:8088"
+    environment:
+      - NETWORK=preprod
+    restart: unless-stopped

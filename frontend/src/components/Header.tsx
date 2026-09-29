@@ -149,7 +149,7 @@ export const Header: React.FC<HeaderProps> = ({
               style={{ fontSize: '0.85rem', padding: '8px 18px' }}
             >
               <Wallet size={16} />
-              Connect Lace Wallet
+              Connect 1AM Wallet
             </button>
           )}
         </div>

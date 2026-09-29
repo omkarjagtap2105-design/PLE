@@ -61,7 +61,7 @@ The **Midnight Network** is purpose-built for data protection and regulatory com
 ```text
 +-------------------------------------------------------------+
 |                      React Frontend (UI)                    |
-|        - Loan Marketplace     - Lace Wallet Connector       |
+|        - Loan Marketplace     - 1AM / I AM Wallet Connector       |
 |        - Private Witness Form - Real-Time Prover Stepper    |
 +-------------------------------------------------------------+
                               |
@@ -92,7 +92,7 @@ The **Midnight Network** is purpose-built for data protection and regulatory com
 - **Blockchain**: Midnight Network (Preprod Testnet)
 - **Frontend Framework**: React 18, TypeScript, Vite
 - **Styling**: Modern Vanilla CSS Glassmorphism Design System (Electric Violet / Emerald / Midnight Blue)
-- **Wallet Connector**: Midnight Lace Wallet DApp Connector API (`window.midnight.mnLace`)
+- **Wallet Connector**: 1AM / I AM Wallet DApp Connector API (`window.midnight`)
 - **Testing**: Vitest, TypeScript (25/25 passing automated tests)
 - **CI/CD**: GitHub Actions
 
@@ -102,7 +102,7 @@ The **Midnight Network** is purpose-built for data protection and regulatory com
 
 - **Node.js**: `v20.0.0` or later (tested on Node 22)
 - **npm**: `v10.0.0` or later
-- **Lace Wallet Extension**: Midnight-compatible Lace wallet browser extension (optional for live testnet execution; demo preview mode included)
+- **1AM / I AM Wallet Extension**: Midnight-compatible I AM wallet browser extension (optional for live testnet execution; demo preview mode included)
 
 ---
 
@@ -223,10 +223,10 @@ npm run check-balance
 > **Note**: The contract compiles successfully with compactc v0.31.1. The deployment scripts and Midnight JS integration libraries (`@midnight-ntwrk/midnight-js-contracts@4.1.1`) are configured and tested. A funded wallet and running proof server are required for live deployment.
 
 ### How to Connect the Frontend to the Contract
-1. Install the Midnight-compatible **Lace Wallet** browser extension.
-2. Ensure Lace is switched to the **Midnight Preprod** network.
-3. Open the PLE application and click **Connect Lace Wallet**.
-4. The application reads the connected account and interacts directly with the contract via the Lace DApp connector. (An interactive Preprod testnet session preview is also available for reviewers without the extension).
+1. Install the Midnight-compatible **1AM / I AM Wallet** browser extension.
+2. Ensure I AM Wallet is switched to the **Midnight Preprod** network.
+3. Open the PLE application and click **Connect 1AM Wallet**.
+4. The application reads the connected account and interacts directly with the contract via the 1AM DApp connector. (An interactive Preprod testnet session preview is also available for reviewers without the extension).
 
 ---
 
@@ -242,7 +242,7 @@ npm run frontend:dev
 # Open http://localhost:3000
 ```
 
-The application includes a **Demo Mode** that simulates the full loan eligibility flow without requiring the Lace wallet extension. Connect Lace wallet for real Midnight Preprod interaction.
+The application includes a **Demo Mode** that simulates the full loan eligibility flow without requiring the 1AM wallet extension. Connect 1AM wallet for real Midnight Preprod interaction.
 
 ---
 

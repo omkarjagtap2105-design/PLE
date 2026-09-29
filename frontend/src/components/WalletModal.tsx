@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Wallet, CheckCircle2, AlertTriangle, ExternalLink, Shield } from 'lucide-react';
+import { X, Wallet, AlertTriangle, Shield } from 'lucide-react';
 import { WalletState } from '../types';
 import { MidnightWalletService } from '../services/midnightWallet';
 
@@ -17,31 +17,15 @@ export const WalletModal: React.FC<WalletModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const hasLace = MidnightWalletService.isLaceAvailable();
-
-  const handleConnectLace = async () => {
+  const handleConnect1AM = async () => {
     setLoading(true);
     setError(null);
     try {
-      const state = await MidnightWalletService.connectLace();
+      const state = await MidnightWalletService.connect1AM();
       onWalletUpdated(state);
       onClose();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to connect Lace wallet');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleConnectDemo = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const state = await MidnightWalletService.connectDemo();
-      onWalletUpdated(state);
-      onClose();
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Demo connection failed');
+      setError(err instanceof Error ? err.message : 'Failed to connect 1AM wallet');
     } finally {
       setLoading(false);
     }
@@ -53,9 +37,10 @@ export const WalletModal: React.FC<WalletModalProps> = ({
       address: null,
       network: 'Midnight Preprod',
       balanceDust: 0,
+      balanceTnight: 0,
       isConnecting: false,
       error: null,
-      connector: 'lace',
+      connector: '1am',
     });
     onClose();
   };
@@ -104,6 +89,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({
               gap: '12px',
               fontSize: '0.85rem',
               color: '#fda4af',
+              whiteSpace: 'pre-wrap',
             }}>
               <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
               <div>{error}</div>
@@ -121,7 +107,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Connection Status</span>
-                  <span className="badge badge-success">Connected ({wallet.connector.toUpperCase()})</span>
+                  <span className="badge badge-success">Connected (1AM)</span>
                 </div>
 
                 <div style={{ marginBottom: '14px' }}>
@@ -145,9 +131,15 @@ export const WalletModal: React.FC<WalletModalProps> = ({
                   <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{wallet.network}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Testnet Balance</span>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>tNIGHT Balance</span>
                   <span style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--accent-glow)' }}>
-                    {wallet.balanceDust} tDUST
+                    {wallet.balanceTnight.toLocaleString()} tNIGHT
+                  </span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>DUST Balance</span>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--accent-glow)' }}>
+                    {wallet.balanceDust.toLocaleString()} DUST
                   </span>
                 </div>
               </div>
@@ -172,12 +164,12 @@ export const WalletModal: React.FC<WalletModalProps> = ({
                 lineHeight: 1.4,
               }}>
                 <Shield size={16} color="var(--accent-glow)" style={{ display: 'inline', marginRight: '6px', verticalAlign: '-3px' }} />
-                Connect your Lace wallet on Midnight Preprod to generate zero-knowledge loan eligibility proofs and interact with the contract.
+                Connect your 1AM / I AM Wallet on Midnight Preprod to generate zero-knowledge loan eligibility proofs and interact with the contract.
               </div>
 
-              {/* Lace Connector Option */}
+              {/* 1AM Connector Option */}
               <button
-                onClick={handleConnectLace}
+                onClick={handleConnect1AM}
                 disabled={loading}
                 className="btn-primary"
                 style={{
@@ -189,32 +181,11 @@ export const WalletModal: React.FC<WalletModalProps> = ({
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <Wallet size={18} />
-                  <span>Midnight Lace Wallet</span>
+                  <span>Connect 1AM Wallet</span>
                 </div>
-                {hasLace ? (
-                  <span className="badge badge-success" style={{ fontSize: '0.65rem' }}>Detected</span>
-                ) : (
-                  <span className="badge badge-network" style={{ fontSize: '0.65rem' }}>Extension Required</span>
-                )}
-              </button>
-
-              {/* Preprod Demo Mode Option */}
-              <button
-                onClick={handleConnectDemo}
-                disabled={loading}
-                className="btn-secondary"
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <CheckCircle2 size={18} color="#10b981" />
-                  <span>Interactive Preprod Testnet Session</span>
-                </div>
-                <span className="badge badge-privacy" style={{ fontSize: '0.65rem' }}>Direct Test</span>
+                <span className="badge badge-network" style={{ fontSize: '0.65rem' }}>
+                  Midnight Preprod
+                </span>
               </button>
 
               <div style={{
@@ -223,15 +194,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({
                 textAlign: 'center',
                 marginTop: '10px',
               }}>
-                Need Midnight Lace extension?{' '}
-                <a
-                  href="https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ color: 'var(--accent-glow)', textDecoration: 'none' }}
-                >
-                  Install from Chrome Web Store <ExternalLink size={12} style={{ display: 'inline' }} />
-                </a>
+                Make sure the 1AM wallet is unlocked and set to Midnight Preprod, then click connect.
               </div>
             </div>
           )}

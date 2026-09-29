@@ -73,9 +73,10 @@ export const App: React.FC = () => {
     address: null,
     network: 'Midnight Preprod',
     balanceDust: 0,
+    balanceTnight: 0,
     isConnecting: false,
     error: null,
-    connector: 'lace',
+    connector: '1am',
   });
 
   const [offers, setOffers] = useState<LoanOffer[]>(INITIAL_OFFERS);
@@ -104,13 +105,18 @@ export const App: React.FC = () => {
 
   const handleExecuteProof = async (privateData: BorrowerPrivateData) => {
     if (!selectedOffer) return;
+    if (!wallet.connected || !wallet.address) {
+      alert('Please connect your 1AM wallet first to generate a real proof.');
+      setIsBorrowerModalOpen(false);
+      return;
+    }
     setIsBorrowerModalOpen(false);
     setIsProving(true);
     setProvingStep(0);
     setProvingLog('Initializing witness sandbox...');
 
     try {
-      const borrowerId = wallet.address || 'mn_addr_preprod_guest_borrower';
+      const borrowerId = wallet.address;
       const result = await ZkProverService.executeProof(
         selectedOffer,
         borrowerId,

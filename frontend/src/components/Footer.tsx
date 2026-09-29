@@ -26,7 +26,7 @@ export const Footer: React.FC = () => {
             </span>
           </div>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-dim)', maxWidth: '480px' }}>
-            A production-ready Zero-Knowledge loan underwriting DApp powered by Midnight Network Compact smart contracts and Lace Wallet.
+            A production-ready Zero-Knowledge loan underwriting DApp powered by Midnight Network Compact smart contracts and 1AM / I AM Wallet.
           </p>
         </div>
 

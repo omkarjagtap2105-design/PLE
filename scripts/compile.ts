@@ -16,13 +16,13 @@
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdirSync } from 'node:fs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
 
 const COMPACT_IMAGE = 'alpine:latest';
-const COMPACT_BIN_DIR = path.join(process.env.LOCALAPPDATA || '', 'Temp', 'kilo', 'compactc-v0.31.1');
+const COMPACT_BIN_DIR = path.join(projectRoot, 'Temp', 'kilo', 'compactc-v0.31.1');
 const COMPACT_BIN = path.join(COMPACT_BIN_DIR, 'compactc.bin');
 const CONTRACT_SOURCE = path.join(projectRoot, 'contracts', 'private-loan-eligibility.compact');
 const OUTPUT_DIR = path.join(projectRoot, 'contracts', 'managed', 'private-loan-eligibility');
@@ -46,15 +46,28 @@ function downloadCompactc(): void {
   const zipUrl = 'https://github.com/midnightntwrk/compact/releases/download/compactc-v0.31.1/compactc_v0.31.1_x86_64-unknown-linux-musl.zip';
   const zipPath = path.join(COMPACT_BIN_DIR, 'compactc-v0.31.1.zip');
 
-  // Ensure directory exists
-  const { mkdirSync } = require('node:fs');
   mkdirSync(COMPACT_BIN_DIR, { recursive: true });
 
-  const downloadResult = spawnSync(
-    process.execPath,
-    ['-e', `require('https').get('${zipUrl}', (res) => { const f = require('fs').createWriteStream('${zipPath.replace(/\\/g, '\\\\')}'); res.pipe(f); f.on('finish', () => f.close()); }).on('error', (e) => { console.error(e); process.exit(1); });`],
-    { stdio: 'inherit', cwd: projectRoot }
-  );
+  const downloadScript = `
+    const https = require('https');
+    const fs = require('fs');
+    const file = fs.createWriteStream('${zipPath.replace(/\\/g, '\\\\')}');
+    https.get('${zipUrl}', (res) => {
+      res.pipe(file);
+      file.on('finish', () => {
+        file.close();
+        console.log('Download complete');
+      });
+    }).on('error', (e) => {
+      console.error('Download failed:', e.message);
+      process.exit(1);
+    });
+  `;
+
+  const downloadResult = spawnSync(process.execPath, ['-e', downloadScript], {
+    stdio: 'inherit',
+    cwd: projectRoot,
+  });
 
   if (downloadResult.status !== 0 || !existsSync(zipPath)) {
     console.warn('  Warning: Could not download compactc automatically.');
@@ -107,9 +120,9 @@ async function main(): Promise<void> {
     'run',
     '--rm',
     '-v',
-    `${projectRoot}:/project`,
+    `${path.resolve(projectRoot)}:/project`,
     '-v',
-    `${COMPACT_BIN_DIR}:/compactc`,
+    `${path.resolve(COMPACT_BIN_DIR)}:/compactc`,
     COMPACT_IMAGE,
     '/compactc/compactc.bin',
     '--skip-zk',

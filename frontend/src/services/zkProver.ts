@@ -70,8 +70,9 @@ export class ZkProverService {
       borrowerCommitment: commitment,
       isEligible,
       timestamp: Date.now(),
-      txHash: 'demo-mode-connect-lace-wallet-for-real-tx',
+      txHash: '',
       verificationKey,
+      txStatus: 'NOT_SUBMITTED',
       rulesEvaluated: {
         creditScorePassed,
         incomePassed,

@@ -34,6 +34,7 @@ export interface VerificationResult {
   timestamp: number;
   txHash: string;
   verificationKey: string;
+  txStatus: 'NOT_SUBMITTED' | 'SUBMITTING' | 'PENDING' | 'CONFIRMED' | 'FAILED';
   rulesEvaluated: {
     creditScorePassed: boolean;
     incomePassed: boolean;
@@ -46,7 +47,8 @@ export interface WalletState {
   address: string | null;
   network: string;
   balanceDust: number;
+  balanceTnight: number;
   isConnecting: boolean;
   error: string | null;
-  connector: 'lace' | 'demo';
+  connector: '1am' | 'demo';
 }

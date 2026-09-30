@@ -227,8 +227,8 @@ npm run check-balance
 
 ## Live Demo
 
-- **Hosted Demo URL:** Pending deployment
-- **Status:** Deployment pending verified public hosting
+- **Hosted Demo URL:** https://ple-midnight.vercel.app
+- **Status:** Live on Vercel
 - **Production Build:** `dist/`
 
 ---

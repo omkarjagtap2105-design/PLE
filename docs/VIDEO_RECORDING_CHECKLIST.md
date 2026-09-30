@@ -70,7 +70,7 @@ Follow this checklist when recording the official submission video for **Private
 10. **[2:35 – 2:50] Show GitHub Repository & Passing CI/CD**:
     - Show `https://github.com/omkarjagtap2105-design/PLE`.
     - Show GitHub Actions `.github/workflows/ci.yml` pipeline with green checkmark.
-    - Highlight passing test suite (19/19 tests passing).
+    - Highlight passing test suite (25/25 tests passing).
 
 11. **[2:50 – 3:00] Conclusion**:
     - Wrap up with a strong closing sentence on confidential Web3 lending on Midnight.

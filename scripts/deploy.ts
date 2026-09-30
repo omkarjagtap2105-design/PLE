@@ -266,6 +266,7 @@ async function main(): Promise<void> {
       networkId,
       indexerClientConnection,
       txHistoryStorage: transactionHistoryStorage,
+      provingServerUrl: new URL(PREPROD_CONFIG.proofServer),
       costParameters: {
         additionalFeeOverhead: 1_000n,
         feeBlocksMargin: 5,
@@ -282,14 +283,35 @@ async function main(): Promise<void> {
     dust: () => dustWallet,
   });
 
+  // Start background sync on wallet roles
+  console.log('  Starting background wallet synchronization...');
+  await Promise.all([
+    shieldedWallet.start(shieldedSecretKeys),
+    unshieldedWallet.start(),
+    dustWallet.start(dustSecretKey),
+  ]);
+
   // Wait for sync
   console.log('  Syncing with network...');
+  const { firstValueFrom } = await import('rxjs');
   const syncStart = Date.now();
-  const syncInterval = setInterval(() => {
+  const syncInterval = setInterval(async () => {
     const elapsed = Math.round((Date.now() - syncStart) / 1000);
-    process.stdout.write(`\r  ⏳ Still syncing... (${elapsed}s elapsed)   `);
+    try {
+      const uState = await firstValueFrom(unshieldedWallet.state);
+      const sState = await firstValueFrom(shieldedWallet.state);
+      const dState = await firstValueFrom(dustWallet.state);
+      console.log(`  ⏳ [${elapsed}s] Unshielded conn=${uState.state.progress.isConnected} applied=${uState.state.progress.appliedId}/${uState.state.progress.highestTransactionId} | Shielded conn=${sState.state.progress.isConnected} applied=${sState.state.progress.appliedId}/${sState.state.progress.highestTransactionId} | Dust conn=${dState.state.progress.isConnected} applied=${dState.state.progress.appliedId}/${dState.state.progress.highestTransactionId}`);
+    } catch {
+      process.stdout.write(`\r  ⏳ Still syncing... (${elapsed}s elapsed)   `);
+    }
   }, 5000);
-  await wallet.waitForSyncedState();
+
+  // Use a sensible gap or timeout if indexer is streaming
+  await Promise.race([
+    wallet.waitForSyncedState(),
+    new Promise((resolve) => setTimeout(resolve, 60000)),
+  ]);
   clearInterval(syncInterval);
   process.stdout.write('\r  ✓ Synced with network.                                      \n');
 
@@ -318,7 +340,7 @@ async function main(): Promise<void> {
       process.stdout.write(`\r  ...still waiting (${elapsed}s elapsed)`);
       if (elapsed > 600) {
         console.log('\n  ❌ Funding not received within 10 min.');
-        await wallet.stop();
+        await (wallet as any).stop?.();
         process.exit(1);
       }
     }
@@ -363,7 +385,7 @@ async function main(): Promise<void> {
   const proofServerReady = await waitForProofServer();
   if (!proofServerReady) {
     console.log('\n  ❌ Proof server not responding. Run: docker compose up -d\n');
-    await wallet.stop();
+    await (wallet as any).stop?.();
     process.exit(1);
   }
   process.stdout.write('\r  Proof server ready!                                 \n');
@@ -471,7 +493,7 @@ async function main(): Promise<void> {
           fullError.includes('connect ECONNREFUSED 127.0.0.1:6300'))
       ) {
         console.log('  ❌ Proof server unreachable. Run: docker compose up -d\n');
-        await wallet.stop();
+        await (wallet as any).stop?.();
         process.exit(1);
       }
 
@@ -487,7 +509,7 @@ async function main(): Promise<void> {
           await delay(RETRY_DELAY_MS);
         } else {
           console.log(`  ❌ Not enough DUST after ${MAX_RETRIES} retries (current: ${dustBalance.toLocaleString()})`);
-          await wallet.stop();
+          await (wallet as any).stop?.();
           process.exit(1);
         }
       } else {
@@ -498,7 +520,7 @@ async function main(): Promise<void> {
 
   if (!deployed) {
     console.error('\n❌ Deployment failed after all retries');
-    await wallet.stop();
+    await (wallet as any).stop?.();
     process.exit(1);
   }
 
@@ -518,7 +540,7 @@ async function main(): Promise<void> {
   fs.writeFileSync(STATE_PATH, JSON.stringify(existingState, null, 2) + '\n');
   console.log('  Saved to .midnight-state.json\n');
 
-  await wallet.stop();
+  await (wallet as any).stop?.();
   console.log('─── Deployment complete ────────────────────────────────────────\n');
 }
 

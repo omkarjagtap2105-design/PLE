@@ -37,3 +37,4 @@ pnpm-debug.log*
 Thumbs.db
 
 .midnight-state.json
+.vercel

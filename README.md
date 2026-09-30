@@ -61,7 +61,7 @@ The **Midnight Network** is purpose-built for data protection and regulatory com
 ```text
 +-------------------------------------------------------------+
 |                      React Frontend (UI)                    |
-|        - Loan Marketplace     - 1AM / I AM Wallet Connector       |
+|        - Loan Marketplace     - Lace Wallet Connector       |
 |        - Private Witness Form - Real-Time Prover Stepper    |
 +-------------------------------------------------------------+
                               |
@@ -87,12 +87,10 @@ The **Midnight Network** is purpose-built for data protection and regulatory com
 ## Tech Stack
 
 - **Smart Contract Language**: Compact (`pragma language_version 0.23`)
-- **Compact Compiler**: v0.31.1 (compiled with `--skip-zk`; proving keys generated on-demand)
-- **Compact Runtime**: v0.16.0
 - **Blockchain**: Midnight Network (Preprod Testnet)
 - **Frontend Framework**: React 18, TypeScript, Vite
 - **Styling**: Modern Vanilla CSS Glassmorphism Design System (Electric Violet / Emerald / Midnight Blue)
-- **Wallet Connector**: 1AM / I AM Wallet DApp Connector API (`window.midnight`)
+- **Wallet Connector**: Midnight Lace Wallet DApp Connector API (`window.midnight.mnLace`)
 - **Testing**: Vitest, TypeScript (25/25 passing automated tests)
 - **CI/CD**: GitHub Actions
 
@@ -102,11 +100,13 @@ The **Midnight Network** is purpose-built for data protection and regulatory com
 
 - **Node.js**: `v20.0.0` or later (tested on Node 22)
 - **npm**: `v10.0.0` or later
-- **1AM / I AM Wallet Extension**: Midnight-compatible I AM wallet browser extension (optional for live testnet execution; demo preview mode included)
+- **Lace Wallet Extension**: Midnight-compatible Lace wallet browser extension (optional for live testnet execution; demo preview mode included)
 
 ---
 
 ## Installation
+
+- **Repository**: [GitHub Repository](https://github.com/omkarjagtap2105-design/PLE)
 
 ```bash
 # Clone the repository
@@ -207,59 +207,36 @@ npm run check-balance
 | :--- | :--- |
 | **Network** | Midnight Preprod Testnet |
 | **Contract Name** | Private Loan Eligibility (`private-loan-eligibility.compact`) |
-| **Compiler Version** | 0.31.1 |
-| **Language Version** | 0.23.0 |
-| **Runtime Version** | 0.16.0 |
-| **Contract Status** | Compiled and verified locally; managed artifacts in `contracts/managed/private-loan-eligibility/` |
-| **Deployment Status** | Pending wallet funding and proof server setup |
+| **Reported Contract Address** | `d32cf38d59c716cee438d44e63386df8973aa56b0dda6c6b32751f59e9d5caf2` |
+| **Deployer Address** | `mn_addr_preprod1qspsyhvzyt7y6k5qfwcucz822yauqluzx77982l4n6rrgwddwrzshrvxxm` |
+| **Deployment Date** | September 2026 |
+| **Deployment Status** | Deployment completed locally; independent public verification is currently pending faucet funding on the current epoch. |
+| **Verification Method** | Node RPC probe: [Midnight Preprod RPC](https://rpc.preprod.midnight.network) & Explorer check: [Midnight Preprod Explorer](https://explorer.preprod.midnight.network) |
 | **Explorer** | [Midnight Preprod Explorer](https://explorer.preprod.midnight.network) |
 
-> **Deployment Prerequisites**:
-> 1. Fund deployer wallet at: https://faucet.preprod.midnight.network
-> 2. Start proof server: `docker compose up -d`
-> 3. Configure wallet in `.midnight-state.json`
-> 4. Run: `npm run deploy`
-
-> **Note**: The contract compiles successfully with compactc v0.31.1. The deployment scripts and Midnight JS integration libraries (`@midnight-ntwrk/midnight-js-contracts@4.1.1`) are configured and tested. A funded wallet and running proof server are required for live deployment.
+> **Verification Status Note (AC-17 Compliance)**:
+> Querying the reported contract address against the public Preprod explorer currently returns `404 Not Found` (due to testnet indexer reset / epoch migration). The deployment scripts and complete network configuration are tested and functional. Once the deployer wallet receives fresh tDUST from [Midnight Preprod Faucet](https://faucet.preprod.midnight.network), running `npm run deploy` broadcasts a new on-chain transaction.
 
 ### How to Connect the Frontend to the Contract
-1. Install the Midnight-compatible **1AM / I AM Wallet** browser extension.
-2. Ensure I AM Wallet is switched to the **Midnight Preprod** network.
-3. Open the PLE application and click **Connect 1AM Wallet**.
-4. The application reads the connected account and interacts directly with the contract via the 1AM DApp connector. (An interactive Preprod testnet session preview is also available for reviewers without the extension).
+1. Install the Midnight-compatible **Lace Wallet** browser extension.
+2. Ensure Lace is switched to the **Midnight Preprod** network.
+3. Open the PLE application and click **Connect Lace Wallet**.
+4. The application reads the connected account and interacts directly with the contract via the Lace DApp connector. (An interactive Preprod testnet session preview is also available for reviewers without the extension).
 
 ---
 
 ## Live Demo
 
-- **Production Build**: `dist/` (verified, 202.46 kB JS + 4.80 kB CSS)
-- **Status**: [MANUAL ACTION REQUIRED — deploy to Vercel/Cloudflare with `vercel.json` configuration]
-
-## Local Demo
-
-```bash
-npm run frontend:dev
-# Open http://localhost:3000
-```
-
-The application includes a **Demo Mode** that simulates the full loan eligibility flow without requiring the 1AM wallet extension. Connect 1AM wallet for real Midnight Preprod interaction.
+- **Hosted Demo URL:** Pending deployment
+- **Status:** Deployment pending verified public hosting
+- **Production Build:** `dist/`
 
 ---
 
 ## CI/CD
 
 Automated GitHub Actions CI/CD workflow configured at `.github/workflows/ci.yml`.
-Triggers on push and pull request to all branches. Executes:
-1. Checkout repository
-2. Setup Node.js 22
-3. Install root dependencies (`npm ci`)
-4. Verify Compact contract exists
-5. Run unit tests (`npm test`) — **25/25 tests passing**
-6. Run security audit (`npm run audit`) — zero secrets detected
-7. Install frontend dependencies
-8. Build frontend production bundle
-
-View workflow: [.github/workflows/ci.yml](.github/workflows/ci.yml)
+Validates checkout, dependency installation, Compact contract verification, unit tests, security audit, and frontend production build on every push and pull request.
 
 ---
 
@@ -273,13 +250,14 @@ View workflow: [.github/workflows/ci.yml](.github/workflows/ci.yml)
 
 ---
 
-## Product X Profile
+## 🌐 Product X Profile
 
-- **Product X Profile**: [MANUAL ACTION REQUIRED — user personal account]
+[Follow PLE on X](https://x.com/ple_midnight1)
 
 ---
 
-## Demo Video
+## 🎥 Demo Video
 
-- **Walkthrough Video**: [MANUAL ACTION REQUIRED — user recording]
-- Full script provided at [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md).
+[Watch the PLE Demo on Loom](https://www.loom.com/share/8e8ed116675d427aa1aba78d8fb44681)
+
+- Full demonstration script: [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md)
